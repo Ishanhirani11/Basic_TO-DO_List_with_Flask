@@ -1,14 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="auth-container glass">
+    <h2 class="auth-title">Update Task</h2>
+    <p class="auth-subtitle">Make changes to your existing task</p>
 
-<h2>Update Task</h2>
-
-<form method="POST">
-    <input type="text" name="content" value="{{ task.content }}" required>
-    <button type="submit">Update</button>
-</form>
-
-<a href="/">Back</a>
-
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.content.label }}
+            {{ form.content() }}
+        </div>
+        <div class="form-group">
+            {{ form.due_date.label }}
+            {{ form.due_date() }}
+        </div>
+        <div class="form-group">
+            {{ form.priority.label }}
+            {{ form.priority() }}
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary" style="flex: 1;">Update</button>
+            <a href="/" class="btn btn-ghost" style="flex: 1;">Cancel</a>
+        </div>
+    </form>
+</div>
 {% endblock %}

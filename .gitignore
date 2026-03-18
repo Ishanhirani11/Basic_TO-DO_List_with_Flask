@@ -1,2 +1,28 @@
-venv
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+
+# SQLite Database / Local Instances
+instance/
+*.db
+*.sqlite3
+
+# Environment Variables (Secrets)
+.env
+
+# User Uploaded Media (Keep the default avatar)
+static/avatars/*
+!static/avatars/default.png
+
+# MacOS / OS Generated Files
 .DS_Store
+
+# IDE & Editor Configurations
+.vscode/
+.idea/
+*.swp

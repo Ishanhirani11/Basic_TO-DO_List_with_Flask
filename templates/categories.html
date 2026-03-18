@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass task-form-panel">
+    <h3><i class="fa-solid fa-tags"></i> Manage Categories</h3>
+    
+    <form action="" method="POST" class="task-form-row">
+        {{ form.hidden_tag() }}
+        <div class="form-group" style="flex: 2;">
+            {{ form.name(placeholder="Category Name", required=True) }}
+        </div>
+        <div class="form-group" style="flex: 1;">
+            {{ form.color(type="color", style="height: 100%; padding: 0.2rem; cursor: pointer;") }}
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> Add
+        </button>
+    </form>
+</div>
+
+<ul class="task-list mt-1">
+    {% for cat in categories %}
+    <li class="task-item glass">
+        <div class="task-content" style="flex-direction: row; align-items: center; gap: 1rem;">
+            <div style="width: 20px; height: 20px; border-radius: 50%; background-color: {{ cat.color }};"></div>
+            <span class="task-title">{{ cat.name }}</span>
+        </div>
+        <div class="task-actions">
+            <a href="{{ url_for('delete_category', id=cat.id) }}" class="btn-icon danger"><i class="fa-solid fa-trash"></i></a>
+        </div>
+    </li>
+    {% else %}
+    <li class="task-item glass text-center" style="display: block; opacity: 0.6; padding: 2rem;">
+        No categories created yet.
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
