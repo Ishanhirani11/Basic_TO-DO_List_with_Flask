@@ -1,25 +1,73 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-<form action="/" method="POST">
-    <input type="text" name="content" placeholder="Enter a task" required>
-    <button type="submit">Add Task</button>
-</form>
-
-<ul>
+<ul class="task-list">
     {% for task in tasks %}
-    <li class="{% if task.completed %}done{% endif %}">
-        <span class="task-text">{{ task.content }}</span>
-
-        <div class="task-buttons">
-            <a href="/complete/{{ task.id }}" class="btn complete-btn">Completed</a>
-            <a href="/update/{{ task.id }}" class="btn edit-btn">Edit</a>
-            <a href="/delete/{{ task.id }}" class="btn delete-btn">Delete</a>
+    <li class="task-item glass {% if task.completed %}completed{% endif %}" data-id="{{ task.id }}">
+        <div class="task-content">
+            <span class="task-title">{{ task.content }}</span>
+            <div class="task-meta">
+                {% if task.due_date %}
+                <span><i class="fa-regular fa-calendar"></i> {{ task.due_date.strftime('%Y-%m-%d') }}</span>
+                {% endif %}
+                <span class="badge {{ task.priority | lower }}">{{ task.priority }}</span>
+                {% if task.category %}
+                <span class="badge" style="background-color: {{ task.category.color }}33; color: {{ task.category.color }}; border: 1px solid {{ task.category.color }};">
+                    <i class="fa-solid fa-tag"></i> {{ task.category.name }}
+                </span>
+                {% endif %}
+            </div>
         </div>
+
+        <div class="task-actions">
+            {% if not task.completed %}
+            <a href="/complete/{{ task.id }}" class="btn-icon success"><i class="fa-solid fa-check"></i></a>
+            {% else %}
+            <a href="/complete/{{ task.id }}" class="btn-icon warning"><i class="fa-solid fa-rotate-left"></i></a>
+            {% endif %}
+            <a href="/update/{{ task.id }}" class="btn-icon warning"><i class="fa-solid fa-pen"></i></a>
+            <a href="/delete/{{ task.id }}" class="btn-icon danger"><i class="fa-solid fa-trash"></i></a>
+        </div>
+    </li>
+    {% else %}
+    <li class="task-item glass text-center" style="display: block; opacity: 0.6; padding: 2rem;">
+        No tasks yet! Start adding some above.
     </li>
     {% endfor %}
 </ul>
 
-
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var el = document.querySelector('.task-list');
+        var sortable = Sortable.create(el, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            onEnd: function (evt) {
+                const items = el.querySelectorAll('.task-item');
+                const newOrder = [];
+                items.forEach((item, index) => {
+                    const taskId = item.getAttribute('data-id');
+                    if (taskId) {
+                        newOrder.push({ id: taskId, order: index });
+                    }
+                });
+                
+                // Send to backend
+                fetch('/reorder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newOrder),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status !== 'success') {
+                        console.error('Failed to save order.');
+                    }
+                });
+            }
+        });
+    });
+</script>
 {% endblock %}

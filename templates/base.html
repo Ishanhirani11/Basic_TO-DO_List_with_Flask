@@ -1,13 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Flask To-Do App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium To-Do</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- SortableJS for Drag and Drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>To-Do List</h1>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <nav class="navbar glass">
+        <!-- Invisible spacer for perfect auto-centering -->
+        <div style="flex: 1;"></div>
+        
+        <div class="nav-brand" style="flex: 1; display: flex; justify-content: center;">
+            <a href="{{ url_for('index') }}" class="logo">
+                <i class="fa-solid fa-check-double"></i> TaskMaster
+            </a>
+        </div>
+        
+        <div class="nav-links" style="flex: 1; justify-content: flex-end;">
+            {% if current_user.is_authenticated %}
+                <button id="theme-toggle" class="theme-toggle nav-btn btn-ghost" aria-label="Toggle Dark Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <span class="user-greeting">Hi, {{ current_user.username }}</span>
+                <a href="{{ url_for('index') }}" class="nav-btn btn-ghost" title="Home"><i class="fa-solid fa-home"></i></a>
+                <a href="{{ url_for('create_task') }}" class="nav-btn btn-ghost" title="Create Task"><i class="fa-solid fa-plus"></i></a>
+                <a href="{{ url_for('categories') }}" class="nav-btn btn-ghost" title="Categories"><i class="fa-solid fa-tags"></i></a>
+                
+                <div class="nav-dropdown">
+                    <button class="nav-btn btn-ghost"><i class="fa-solid fa-user"></i></button>
+                    <div class="nav-dropdown-content glass">
+                        <a href="{{ url_for('profile') }}"><i class="fa-solid fa-gear"></i> Profile</a>
+                        <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="main-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} glass">
+                            <i class="fa-solid fa-info-circle"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
         {% block content %}{% endblock %}
     </div>
+
+    <script>
+        // Auto-dismiss flash messages after 4 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 4000);
+
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('theme-toggle');
+        const icon = themeToggle.querySelector('i');
+        
+        // Check saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-mode');
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            if (document.body.classList.contains('light-mode')) {
+                localStorage.setItem('theme', 'light');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                localStorage.setItem('theme', 'dark');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+    </script>
 </body>
 </html>
